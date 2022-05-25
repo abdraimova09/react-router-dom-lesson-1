@@ -6,6 +6,8 @@ import Filters from './components/Filters/Filters';
 import ProductsList from './components/ProductsList/ProductsList';
 import AddForm from './components/AddForm/AddForm';
 import axios from 'axios';
+import Details from './components/Details/Details';
+import EditForm from './components/EditForm/EditForm';
 
 const App = () => {
 
@@ -15,6 +17,7 @@ const App = () => {
 
   //! для хранения полученных продуктов
   const [products, setProducts] = useState([])
+  const [oneProduct, setOneProduct] = useState(null)
 
   //! create (post request)
   function addProduct(newProduct) {
@@ -31,14 +34,29 @@ const App = () => {
     await axios.delete(`${API}/${id}`)
     getProducts()
   }
+  //! get for details && get for edit
+  async function getOneProduct (id) {
+    let result = await axios.get(`${API}/${id}`)
+    // console.log(result);
+    setOneProduct(result.data)
+  }
+  // console.log(oneProduct);
+
+  //! update (patch request)
+  async function updateProduct (id, editedProduct){
+    await axios.patch(`${API}/${id}`, editedProduct)
+    getProducts()
+  }
+
   return (
     <BrowserRouter>
       <Header />
       <Routes>
         <Route path='/' element={<><Filters /><ProductsList getProducts={getProducts} products={products} deleteProduct={deleteProduct} /></>} />
         <Route path='/add' element={<AddForm addProduct={addProduct} />} />
-        <Route path='/edit' element={<h1>Edit form</h1>} />
+        <Route path='/edit/:id' element={<EditForm getOneProduct={getOneProduct} oneProduct={oneProduct} updateProduct={updateProduct} />} />
         <Route path='/contacts' element={<h1>Contacts</h1>} />
+        <Route path='/details/:id' element={<Details getOneProduct={getOneProduct} oneProduct={oneProduct} />} />
       </Routes>
       <h1>Footer</h1>
     </BrowserRouter>
